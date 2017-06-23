@@ -5,7 +5,7 @@ buildscript {
         maven { url 'https://plugins.gradle.org/m2/' }
     }
     dependencies {
-        classpath 'org.springframework.boot:spring-boot-gradle-plugin:1.5.3.RELEASE'
+        classpath 'org.springframework.boot:spring-boot-gradle-plugin:1.5.4.RELEASE'
     }
 }
 
@@ -36,9 +36,12 @@ springBoot {
 }
 
 dependencies {
-    compile 'com.linecorp.armeria:armeria-spring-boot-starter-shaded:0.47.0'
+    compile 'com.linecorp.armeria:armeria-spring-boot-starter-shaded:0.49.0'
+    compile 'com.linecorp.armeria:armeria-tomcat-shaded:0.49.0'
+    compile 'com.linecorp.armeria:armeria-thrift-shaded:0.49.0'
     compile 'org.springframework.boot:spring-boot-starter-web'
     compile 'org.springframework.boot:spring-boot-starter-logging'
+    compile 'org.springframework.boot:spring-boot-starter-freemarker'
 
     testCompile 'junit:junit:4.12'
 }
