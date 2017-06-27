@@ -1,4 +1,4 @@
-https://github.com/line/armeria/issues/614
+https://github.com/line/armeria/issues/116
 
 
 Step 1. Launch app.
@@ -6,10 +6,8 @@ Step 1. Launch app.
 ./gradlew bootRun
 ```
 
-Step 2. Creates blocking request(s)
+Step 2. Check sync and async endpoint
 ```sh
-./create_stuck_requests.sh
+curl -v http://localhost:8080/async
+curl -v http://localhost:8080/sync
 ```
-
-Step 3. Makes other requests
-Run ./src/test/java/com/linecorp/armeria/sample/SampleTest.java

@@ -15,40 +15,50 @@
  */
 package com.linecorp.armeria.sample;
 
-import java.util.concurrent.CompletableFuture;
+import java.lang.reflect.Field;
+import java.util.Map;
 
+import org.apache.catalina.Service;
+import org.apache.catalina.connector.Connector;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.embedded.EmbeddedWebApplicationContext;
+import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainer;
 import org.springframework.context.annotation.Bean;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
-import com.linecorp.armeria.common.MediaType;
-import com.linecorp.armeria.common.http.HttpRequest;
-import com.linecorp.armeria.common.http.HttpResponseWriter;
-import com.linecorp.armeria.common.http.HttpStatus;
 import com.linecorp.armeria.server.PathMapping;
-import com.linecorp.armeria.server.ServiceRequestContext;
-import com.linecorp.armeria.server.http.AbstractHttpService;
-import com.linecorp.armeria.server.logging.LoggingService;
+import com.linecorp.armeria.server.http.tomcat.TomcatService;
 import com.linecorp.armeria.spring.HttpServiceRegistrationBean;
 
 @SpringBootApplication
+@EnableWebMvc
 public class SampleApplication {
 
     @Bean
     HttpServiceRegistrationBean httpService(final EmbeddedWebApplicationContext applicationContext) {
-        CompletableFuture<Object> blockedFuture = new CompletableFuture<>();
+        Connector connector = getConnector(applicationContext);
         return new HttpServiceRegistrationBean()
                 .setServiceName("buggy-service")
-                .setService(new AbstractHttpService() {
-                    @Override
-                    protected void doGet(ServiceRequestContext ctx, HttpRequest req, HttpResponseWriter res)
-                            throws Exception {
-                        blockedFuture.get(); // XXXX This is bug!!! Don't block armeria event loop.
-                        res.respond(HttpStatus.OK, MediaType.ANY_TEXT_TYPE, "OK");
-                    }
-                }.decorate(LoggingService.newDecorator()))
-                .setPathMapping(PathMapping.ofPrefix("/my-buggy-service"));
+                .setService(TomcatService.forConnector(connector))
+                .setPathMapping(PathMapping.ofCatchAll());
+    }
+
+    private static Connector getConnector(EmbeddedWebApplicationContext applicationContext) {
+        final TomcatEmbeddedServletContainer container =
+                (TomcatEmbeddedServletContainer) applicationContext.getEmbeddedServletContainer();
+        try {
+            Field serviceConnectorsField = TomcatEmbeddedServletContainer.class.getDeclaredField(
+                    "serviceConnectors");
+            serviceConnectorsField.setAccessible(true);
+            @SuppressWarnings("unchecked")
+            Map<Service, Connector[]> connectors =
+                    (Map<Service, Connector[]>) serviceConnectorsField.get(container);
+            return connectors.values().stream().findFirst().orElseThrow(
+                    () -> new IllegalStateException("Connectors not found"))[0];
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     public static void main(String[] args) {
