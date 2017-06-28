@@ -36,9 +36,16 @@ springBoot {
 }
 
 dependencies {
-    compile 'com.linecorp.armeria:armeria-spring-boot-starter-shaded:0.47.0'
+    compile 'com.linecorp.armeria:armeria-spring-boot-starter-shaded:0.50.0'
+    compile 'com.linecorp.armeria:armeria-thrift0.9-shaded:0.50.0'
+    compile 'com.linecorp.armeria:armeria-retrofit2-shaded:0.50.0'
     compile 'org.springframework.boot:spring-boot-starter-web'
     compile 'org.springframework.boot:spring-boot-starter-logging'
+    compile 'com.squareup.retrofit2:adapter-java8:2.3.0'
+    compile 'com.squareup.retrofit2:adapter-guava:2.3.0'
+    compile 'com.squareup.retrofit2:adapter-rxjava2:2.3.0'
+    compile 'com.squareup.retrofit2:converter-jackson:2.3.0'
 
     testCompile 'junit:junit:4.12'
+    testCompile 'com.spotify:completable-futures:0.3.0'
 }
