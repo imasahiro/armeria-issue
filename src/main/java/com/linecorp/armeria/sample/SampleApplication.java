@@ -15,40 +15,23 @@
  */
 package com.linecorp.armeria.sample;
 
-import java.util.concurrent.CompletableFuture;
-
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.context.embedded.EmbeddedWebApplicationContext;
 import org.springframework.context.annotation.Bean;
 
-import com.linecorp.armeria.common.MediaType;
-import com.linecorp.armeria.common.http.HttpRequest;
-import com.linecorp.armeria.common.http.HttpResponseWriter;
-import com.linecorp.armeria.common.http.HttpStatus;
-import com.linecorp.armeria.server.PathMapping;
-import com.linecorp.armeria.server.ServiceRequestContext;
-import com.linecorp.armeria.server.http.AbstractHttpService;
-import com.linecorp.armeria.server.logging.LoggingService;
-import com.linecorp.armeria.spring.HttpServiceRegistrationBean;
+import com.linecorp.armeria.common.thrift.ThriftSerializationFormats;
+import com.linecorp.armeria.server.thrift.THttpService;
+import com.linecorp.armeria.spring.ThriftServiceRegistrationBean;
+import com.linecorp.armeria.thrift.HelloService;
 
 @SpringBootApplication
 public class SampleApplication {
-
     @Bean
-    HttpServiceRegistrationBean httpService(final EmbeddedWebApplicationContext applicationContext) {
-        CompletableFuture<Object> blockedFuture = new CompletableFuture<>();
-        return new HttpServiceRegistrationBean()
-                .setServiceName("buggy-service")
-                .setService(new AbstractHttpService() {
-                    @Override
-                    protected void doGet(ServiceRequestContext ctx, HttpRequest req, HttpResponseWriter res)
-                            throws Exception {
-                        blockedFuture.get(); // XXXX This is bug!!! Don't block armeria event loop.
-                        res.respond(HttpStatus.OK, MediaType.ANY_TEXT_TYPE, "OK");
-                    }
-                }.decorate(LoggingService.newDecorator()))
-                .setPathMapping(PathMapping.ofPrefix("/my-buggy-service"));
+    public ThriftServiceRegistrationBean rpcService(HelloService.AsyncIface helloService) {
+        return new ThriftServiceRegistrationBean()
+                .setServiceName("HelloService")
+                .setService(THttpService.of(helloService, ThriftSerializationFormats.COMPACT))
+                .setPath("/api/data");
     }
 
     public static void main(String[] args) {

@@ -1,4 +1,4 @@
-https://github.com/line/armeria/issues/614
+https://github.com/line/armeria/issues/702
 
 
 Step 1. Launch app.
@@ -6,10 +6,5 @@ Step 1. Launch app.
 ./gradlew bootRun
 ```
 
-Step 2. Creates blocking request(s)
-```sh
-./create_stuck_requests.sh
-```
-
-Step 3. Makes other requests
+Step 2. Makes requests
 Run ./src/test/java/com/linecorp/armeria/sample/SampleTest.java
