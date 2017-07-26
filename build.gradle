@@ -20,6 +20,7 @@ apply plugin: 'com.google.osdetector'
 archivesBaseName = project.name
 
 repositories {
+    mavenLocal()
     mavenCentral()
 }
 
@@ -92,8 +93,8 @@ springBoot {
 }
 
 dependencies {
-    compile 'com.linecorp.armeria:armeria-spring-boot-starter-shaded:0.51.0'
-    compile 'com.linecorp.armeria:armeria-thrift-shaded:0.51.0'
+    compile 'com.linecorp.armeria:armeria-spring-boot-starter-shaded:0.52.0-SNAPSHOT'
+    compile 'com.linecorp.armeria:armeria-thrift-shaded:0.52.0-SNAPSHOT'
     compile 'org.springframework.boot:spring-boot-starter'
     compile 'org.springframework.boot:spring-boot-starter-logging'
     compile 'org.hibernate:hibernate-validator:5.4.1.Final'
